@@ -1,0 +1,182 @@
+# ============================================================
+# .cursorrules — AtomQuest 1.0 Goal-Tracking Portal
+# ============================================================
+
+## PROJECT IDENTITY
+This is AtomQuest 1.0: a Next.js 14 (App Router) + Supabase
+Goal Setting & Tracking Portal for an HR hackathon.
+Stack: Next.js 14, TypeScript, Tailwind CSS, shadcn/ui,
+Supabase (Auth + Postgres + Realtime), React Hook Form + Zod,
+Zustand, React Query (TanStack Query v5), SheetJS (xlsx).
+
+## CODING STANDARDS
+- TypeScript strict mode. No 'any'. All types explicitly declared.
+- Functional components only. No class components.
+- All async Server Actions must be in /app/actions/*.ts files.
+- API routes only for webhooks; all other mutations via Server Actions.
+- Use 'use client' directive only at leaf components that need state/events.
+- Always colocate component, test, and story in same folder.
+- File naming: PascalCase for components, kebab-case for routes.
+- Use path aliases: @/components, @/lib, @/types, @/hooks.
+- Export named exports only; no default exports except Next.js pages/layouts.
+- Never use inline styles. Always Tailwind utility classes or CSS variables.
+
+## VALIDATION RULES — CRITICAL
+These rules must be enforced at BOTH the frontend (Zod schema) and
+backend (Server Action + Postgres constraint). Never enforce only one layer.
+
+const GOAL_SHEET_RULES = {
+  MAX_GOALS: 8,
+  MIN_WEIGHTAGE_PER_GOAL: 10,  // percent
+  TOTAL_WEIGHTAGE: 100,         // must equal exactly
+  UOM_TYPES: ['numeric_min', 'numeric_max', 'timeline', 'zero'],
+} as const;
+
+Zod schema for a single goal:
+const goalSchema = z.object({
+  title: z.string().min(3).max(200),
+  thrust_area: z.string().min(1),
+  uom_type: z.enum(['numeric_min','numeric_max','timeline','zero']),
+  target_value: z.number().positive().nullable(),
+  target_date: z.string().date().nullable(),
+  weightage: z.number().min(10).max(100),
+  description: z.string().max(500).optional(),
+});
+
+Zod refine for the full sheet:
+.refine(goals => goals.reduce((s,g) => s + g.weightage, 0) === 100,
+  { message: 'Total weightage must equal 100%' })
+.refine(goals => goals.length <= 8,
+  { message: 'Maximum 8 goals per sheet' })
+
+## LOCKING MECHANISM
+- goal_sheets.is_locked (boolean) is the single source of truth.
+- Set is_locked = true atomically inside the approveGoalSheet() Server Action
+  using a Supabase transaction (rpc call wrapping both the status update and lock).
+- Every Server Action that mutates goal/sheet fields MUST begin with:
+  const { is_locked } = await getGoalSheetLockStatus(sheetId);
+  if (is_locked) throw new Error('SHEET_LOCKED');
+- The UI must reflect locked state: render all goal fields as <span> not <input>.
+- Add a LockBadge component (padlock icon + 'Approved & Locked' text) to locked sheets.
+
+## SHARED GOALS — SYNC LOGIC
+Shared Goals connect a primary owner's goal row to N recipient goal rows
+via the shared_goal_links junction table.
+
+PUSH FLOW (Admin/Manager):
+1. Admin calls pushSharedGoal(sourceGoalId, recipientEmployeeIds[]).
+2. Server Action creates a goal row (is_shared=true) in each recipient's goal_sheet
+   copying title, thrust_area, uom_type, target_value, target_date from source.
+3. Insert shared_goal_links rows linking source → each target.
+4. Recipients can only edit weightage on their copy.
+
+ACHIEVEMENT SYNC FLOW:
+When the primary owner logs a check-in (actual achievement):
+1. checkins row is inserted/updated for source_goal_id.
+2. A Postgres trigger (after_checkin_upsert) fires:
+   - Reads all shared_goal_links where source_goal_id = NEW.goal_id.
+   - Inserts/upserts identical checkin rows for each target_goal_id,
+     preserving the recipient's own manager_comment.
+3. Supabase Realtime broadcasts on channel 'shared-goal-{sourceGoalId}'.
+4. Frontend subscribes to this channel and invalidates React Query cache
+   for the affected goal sheets to trigger UI refresh.
+
+RECIPIENT CONSTRAINT:
+- On the recipient's goal row: title, uom_type, target_value, target_date
+  are all read-only. Enforce in UI and in Server Action (throw if attempted).
+- Only weightage is mutable by the recipient.
+
+## AUDIT TRAIL — POST-LOCK CHANGES
+All mutations to goals or goal_sheets after lock must be captured.
+
+Implementation:
+1. Create Postgres function log_goal_change() as a trigger function.
+2. Attach as AFTER UPDATE trigger on goals and goal_sheets tables.
+3. Function body inserts into audit_log:
+   INSERT INTO audit_log(goal_sheet_id, goal_id, actor_id, action,
+     field_changed, old_value, new_value, changed_at)
+   SELECT NEW.goal_sheet_id, NEW.id, current_setting('app.current_user_id'),
+     'UPDATE', column_name, old_val::text, new_val::text, now()
+   FROM jsonb_each_text(to_jsonb(OLD)) AS old_vals(column_name, old_val)
+   JOIN jsonb_each_text(to_jsonb(NEW)) AS new_vals(column_name, new_val)
+     USING (column_name)
+   WHERE old_val IS DISTINCT FROM new_val;
+
+4. Set actor context before each mutation in Server Action:
+   await supabaseAdmin.rpc('set_config', {
+     parameter: 'app.current_user_id', value: session.user.id, is_local: true
+   });
+
+5. Admin UI: /app/admin/audit-log/page.tsx — filterable table showing all
+   audit_log rows with columns: Time | Actor | Sheet | Goal | Field | Old | New.
+
+## QUARTERLY WINDOW ENFORCEMENT
+- Active window is determined server-side from the cycles table.
+- Helper: getCurrentWindow() → 'goal_setting' | 'Q1' | 'Q2' | 'Q3' | 'Q4' | null
+- Every check-in Server Action calls getCurrentWindow() first.
+  If result is null or doesn't match expected quarter → return { error: 'WINDOW_CLOSED' }.
+- Never trust the client's date. All window checks are server-side only.
+- UI: Render a <WindowStatusBanner /> at layout level (layout.tsx) so it appears
+  on every page. Feed it a server-fetched prop — not a client-side Date.now().
+
+## PROGRESS SCORE COMPUTATION
+Scores are computed in Postgres via compute_progress_score() function.
+Call it inside the checkin upsert trigger, not in application code.
+Never expose raw formula computation in frontend JavaScript —
+the score column on checkins is the single source of truth.
+
+## ROLES & RLS
+Supabase RLS policies:
+- employee: SELECT own goal_sheet only; INSERT/UPDATE own goals pre-lock; INSERT checkins in open window.
+- manager: SELECT all goal_sheets for their direct reports; UPDATE during approval; INSERT manager_comment.
+- admin: Full SELECT; UPDATE is_locked; INSERT into audit_log for unlock reasons; manage cycles.
+Role is stored in users.role. Always join through users table — never trust client-supplied role claims.
+
+## ERROR HANDLING CONVENTIONS
+- Server Actions return { data, error } — never throw to client.
+- Error codes (string enum): SHEET_LOCKED | WINDOW_CLOSED | VALIDATION_FAILED |
+  MAX_GOALS_REACHED | UNAUTHORISED | NOT_FOUND
+- Frontend: useActionState hook wraps all form submissions.
+- Toast notifications for success/error using sonner library.
+
+## COMPONENT LIBRARY CONVENTIONS
+- Use shadcn/ui primitives (Button, Dialog, Table, Badge, Select).
+- Extend with project-specific components in @/components/ui/.
+- Key custom components to build first:
+  GoalCard | ValidationBanner | ProgressGauge | WindowStatusBanner |
+  LockBadge | SharedGoalBadge | CheckinRow | AuditLogTable | RoleSwitcher
+
+## FILE STRUCTURE
+/app
+  /(auth)/login/page.tsx
+  /(employee)/goal-sheet/page.tsx
+  /(employee)/checkins/page.tsx
+  /(manager)/team/page.tsx
+  /(manager)/approvals/[sheetId]/page.tsx
+  /(admin)/cycles/page.tsx
+  /(admin)/audit-log/page.tsx
+  /(admin)/reports/page.tsx
+  /actions/goals.ts
+  /actions/checkins.ts
+  /actions/admin.ts
+/components
+  /ui/  (shadcn + custom)
+  /goals/
+  /checkins/
+  /admin/
+/lib
+  /supabase/  (client.ts, server.ts, admin.ts)
+  /validations/  (goal-schema.ts, checkin-schema.ts)
+  /utils/  (window.ts, progress.ts, export.ts)
+/types
+  /database.types.ts  (generated from Supabase)
+  /app.types.ts
+
+## DO NOT
+- Do NOT put business logic in React components. Move to Server Actions or lib/.
+- Do NOT use useEffect for data fetching. Use React Query or Server Components.
+- Do NOT hardcode dates for window enforcement. Always read from cycles table.
+- Do NOT allow mutations on audit_log from the application layer.
+- Do NOT render achievement input fields without checking window status first.
+- Do NOT compute progress scores in JavaScript. Always use the Postgres function.
+# ============================================================
