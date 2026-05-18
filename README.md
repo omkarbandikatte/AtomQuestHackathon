@@ -1,5 +1,11 @@
 # AtomQuest — Performance Goal Tracking Portal
 
+**🔗 Live Demo: [https://atom-quest-hackathon-liart.vercel.app/](https://atom-quest-hackathon-liart.vercel.app/)**
+
+**📂 GitHub: [https://github.com/omkarbandikatte/AtomQuestHackathon](https://github.com/omkarbandikatte/AtomQuestHackathon)**
+
+---
+
 A comprehensive performance management system built for organizations following the Indian Financial Year (April–March) cycle. Employees set goals, log quarterly check-ins, and track progress while managers approve goal sheets and monitor team performance.
 
 ---
