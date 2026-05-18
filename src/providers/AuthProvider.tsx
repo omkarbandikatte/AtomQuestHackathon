@@ -16,6 +16,7 @@ export function AuthProvider({
   const { setUser, setLoading } = useAuthStore();
   const router = useRouter();
 
+  // Hydrate the store with server-provided user immediately
   useEffect(() => {
     setUser(initialUser);
   }, [initialUser, setUser]);
@@ -30,10 +31,14 @@ export function AuthProvider({
         setUser(null);
         router.push("/login");
         router.refresh();
+        return;
       }
 
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        // Refresh user profile from DB to get latest role/metadata
+        // Skip client-side refetch if we already have a valid user from the server
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser && event === "TOKEN_REFRESHED") return;
+
         setLoading(true);
         const {
           data: { user: authUser },
@@ -45,8 +50,13 @@ export function AuthProvider({
             .select("id, email, full_name, role, manager_id, department")
             .eq("id", authUser.id)
             .single();
-          setUser(data as SessionUser | null);
-        } else {
+          if (data) {
+            setUser(data as SessionUser);
+          } else if (!currentUser) {
+            // Only set null if we don't already have a valid user
+            setUser(null);
+          }
+        } else if (!currentUser) {
           setUser(null);
         }
       }

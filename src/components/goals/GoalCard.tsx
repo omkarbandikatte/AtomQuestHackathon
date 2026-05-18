@@ -8,6 +8,7 @@ import { UOM_LABELS } from "@/lib/constants/goal-rules";
 import { formatScore } from "@/lib/utils/progress";
 import { cn } from "@/lib/utils/cn";
 import { InlineGoalEditor } from "@/components/manager/InlineGoalEditor";
+import { RiskDetector } from "@/components/ai/RiskDetector";
 import type { Goal, Checkin } from "@/types/app.types";
 
 interface GoalCardProps {
@@ -16,6 +17,7 @@ interface GoalCardProps {
   isLocked: boolean;
   quarter?: string;
   showManagerEdit?: boolean;
+  showRiskAssessment?: boolean;
   onGoalEdited?: () => void;
   className?: string;
 }
@@ -26,6 +28,7 @@ export function GoalCard({
   isLocked,
   quarter,
   showManagerEdit,
+  showRiskAssessment,
   onGoalEdited,
   className,
 }: GoalCardProps) {
@@ -91,6 +94,10 @@ export function GoalCard({
 
         {showManagerEdit && !isLocked && (
           <InlineGoalEditor goal={goal} onSaved={onGoalEdited} />
+        )}
+
+        {showRiskAssessment && (
+          <RiskDetector goalId={goal.id} goalTitle={goal.title} />
         )}
       </CardContent>
     </Card>

@@ -137,7 +137,7 @@ export default async function GoalSheetPage() {
       {goals.length > 0 ? (
         <div className="space-y-4">
           {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} isLocked={isLocked} />
+            <GoalCard key={goal.id} goal={goal} isLocked={isLocked} showRiskAssessment={isLocked} />
           ))}
         </div>
       ) : (

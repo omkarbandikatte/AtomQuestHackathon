@@ -1,7 +1,10 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/auth/session";
 import { redirect, notFound } from "next/navigation";
 import { ROUTES } from "@/lib/constants/routes";
 import { ApprovalDetailClient } from "@/components/manager/ApprovalDetailClient";
+import { AISummaryGenerator } from "@/components/ai/AISummaryGenerator";
+import { getCurrentWindow } from "@/lib/utils/window";
 
 export const metadata = { title: "Review Goal Sheet — AtomQuest" };
 
@@ -10,9 +13,8 @@ interface Props {
 }
 
 export default async function ApprovalDetailPage({ params }: Props) {
+  const user = await requireAuth("manager");
   const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(ROUTES.LOGIN);
 
   const { data: sheet } = await supabase
     .from("goal_sheets")
@@ -42,5 +44,19 @@ export default async function ApprovalDetailPage({ params }: Props) {
     }
   }
 
-  return <ApprovalDetailClient sheet={sheet as any} managerId={user.id} />;
+  const windowStatus = await getCurrentWindow();
+  const quarter = windowStatus.phase && windowStatus.phase !== "goal_setting" ? windowStatus.phase : "Q1";
+
+  return (
+    <div className="space-y-6">
+      <ApprovalDetailClient sheet={sheet as any} managerId={user.id} />
+      {employee && (
+        <AISummaryGenerator
+          employeeId={employee.id}
+          employeeName={employee.full_name}
+          quarter={quarter}
+        />
+      )}
+    </div>
+  );
 }

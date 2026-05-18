@@ -14,6 +14,9 @@ import { saveGoalSheetDraftAction, submitGoalSheetAction } from "@/app/actions/g
 import { Button } from "@/components/ui/button";
 import { GoalFormRow } from "@/components/goals/GoalFormRow";
 import { GoalSheetValidationBar } from "@/components/goals/GoalSheetValidationBar";
+import { AIGoalAssistant } from "@/components/ai/AIGoalAssistant";
+import { GoalQualityScorer } from "@/components/ai/GoalQualityScorer";
+import type { AISuggestedGoal } from "@/lib/ai/groq-service";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -142,6 +145,21 @@ export function GoalSheetForm({
   function handleAddGoal() {
     if (!canAddGoal) return;
     append(DEFAULT_GOAL);
+  }
+
+  function handleApplyAIGoal(suggestion: AISuggestedGoal) {
+    if (!canAddGoal) return;
+    append({
+      title: suggestion.title,
+      thrust_area: suggestion.thrust_area,
+      uom_type: (["numeric_min", "numeric_max", "timeline", "zero"].includes(suggestion.uom_type)
+        ? suggestion.uom_type
+        : "numeric_min") as (typeof GOAL_SHEET_RULES.UOM_TYPES)[number],
+      target_value: suggestion.target_value,
+      target_date: suggestion.target_date,
+      weightage: Math.max(suggestion.weightage, GOAL_SHEET_RULES.MIN_WEIGHTAGE_PER_GOAL),
+      description: suggestion.description ?? "",
+    });
   }
 
   function handleSaveDraft(values: FormValues) {
@@ -309,6 +327,7 @@ export function GoalSheetForm({
           <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider">
             My Goals ({fields.length})
           </h2>
+          <AIGoalAssistant onApplyGoal={handleApplyAIGoal} />
         </div>
 
         {fields.map((field, index) => (
@@ -321,7 +340,15 @@ export function GoalSheetForm({
             onRemove={() => remove(index)}
             canRemove={fields.length > 1}
             disabled={isPending}
-          />
+          >
+            <GoalQualityScorer
+              title={watchedGoals?.[index]?.title ?? ""}
+              description={watchedGoals?.[index]?.description}
+              targetValue={watchedGoals?.[index]?.target_value}
+              targetDate={watchedGoals?.[index]?.target_date}
+              uomType={watchedGoals?.[index]?.uom_type}
+            />
+          </GoalFormRow>
         ))}
 
         {/* Add Goal Button */}

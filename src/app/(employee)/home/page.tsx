@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Target, ClipboardCheck, TrendingUp, Bell, ChevronRight } from "lucide-react";
 import { ROUTES } from "@/lib/constants/routes";
+import { EmployeeBadges } from "@/components/gamification/EmployeeBadges";
+import { GoalDependencyMap } from "@/components/ai/GoalDependencyMap";
 
 export const metadata = { title: "Dashboard — AtomQuest" };
 
@@ -182,6 +184,39 @@ export default async function EmployeeDashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* Gamification Badges */}
+      <EmployeeBadges
+        hasGoals={(goalsCount ?? 0) > 0}
+        sheetSubmitted={sheet?.status === "submitted" || sheet?.status === "approved"}
+        sheetApproved={sheet?.status === "approved"}
+      />
+
+      {/* Goal Dependency Map */}
+      <GoalDependencyMap
+        data={{
+          id: "org",
+          label: "Organization Goals",
+          type: "company",
+          status: "on_track",
+          children: [
+            {
+              id: "dept",
+              label: `${user.department ?? "Your"} Department`,
+              type: "department",
+              status: "on_track",
+              children: [
+                {
+                  id: "my",
+                  label: `${user.full_name} (You)`,
+                  type: "employee",
+                  status: sheet?.status === "approved" ? "completed" : sheet ? "on_track" : "at_risk",
+                },
+              ],
+            },
+          ],
+        }}
+      />
     </div>
   );
 }

@@ -20,6 +20,7 @@ interface GoalFormRowProps {
   onRemove: () => void;
   canRemove: boolean;
   disabled?: boolean;
+  children?: React.ReactNode;
 }
 
 const THRUST_AREAS = [
@@ -39,6 +40,7 @@ export function GoalFormRow({
   onRemove,
   canRemove,
   disabled,
+  children,
 }: GoalFormRowProps) {
   const uomType = useWatch({ control, name: `goals.${index}.uom_type` });
 
@@ -246,6 +248,9 @@ export function GoalFormRow({
             </p>
           )}
         </div>
+
+        {/* AI Quality Scorer slot */}
+        {children}
       </CardContent>
     </Card>
   );

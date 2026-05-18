@@ -5,6 +5,8 @@ import { ReportExportButton } from "@/components/admin/ReportExportButton";
 import { CompletionDashboard } from "@/components/admin/CompletionDashboard";
 import { DepartmentReportTable } from "@/components/admin/DepartmentReportTable";
 import { ScoreDistributionChart } from "@/components/admin/ScoreDistributionChart";
+import { Leaderboard } from "@/components/gamification/Leaderboard";
+import { getLeaderboardData } from "@/services/gamification-service";
 
 export const metadata = { title: "Reports — AtomQuest" };
 
@@ -88,6 +90,26 @@ export default async function ReportsPage() {
       </div>
 
       <DepartmentReportTable rows={deptRows} />
+
+      {/* Gamification Leaderboards */}
+      <LeaderboardSection />
+    </div>
+  );
+}
+
+async function LeaderboardSection() {
+  const { departmentCompletion, topPerformers } = await getLeaderboardData();
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Leaderboard
+        title="Department Completion"
+        entries={departmentCompletion}
+      />
+      <Leaderboard
+        title="Top Performers"
+        entries={topPerformers}
+        metric=" pts"
+      />
     </div>
   );
 }

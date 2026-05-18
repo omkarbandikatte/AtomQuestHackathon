@@ -8,6 +8,7 @@ import { CycleStatusCard } from "@/components/admin/CycleStatusCard";
 import { CompletionBarChart } from "@/components/admin/CompletionBarChart";
 import { RecentAuditFeed } from "@/components/admin/RecentAuditFeed";
 import { WindowControlCard } from "@/components/admin/WindowControlCard";
+import { AIInsightsDashboard } from "@/components/ai/AIInsightsDashboard";
 import Link from "next/link";
 import { Settings, Users, LockOpen, FileText, BarChart3 } from "lucide-react";
 
@@ -100,6 +101,7 @@ export default async function AdminDashboardPage() {
             <CycleStatusCard cycle={cycle} />
           )}
           <CompletionBarChart segments={deptStats} total={totalSheets} />
+          <AIInsightsDashboard />
         </div>
         <div className="space-y-4">
           <WindowControlCard windowStatus={windowStatus} cycleId={cycle?.id ?? null} />
