@@ -62,8 +62,16 @@ export async function upsertCheckinAction(
     employee_id: user.id,
   }));
 
+  // Use admin client with actor context so audit trigger identifies the user
+  const adminClient = createAdminClient();
+  await (adminClient.rpc as any)("set_config", {
+    parameter: "app.current_user_id",
+    value: user.id,
+    is_local: true,
+  });
+
   // Upsert — conflict on (goal_id, quarter). Postgres trigger computes progress_score.
-  const { error } = await supabase
+  const { error } = await adminClient
     .from("checkins")
     .upsert(checkinRows, { onConflict: "goal_id,quarter" });
 
@@ -106,10 +114,10 @@ export async function submitQuarterlyCheckinAction(
     return { data: null, error: "Sheet must be approved before submitting check-ins" };
   }
 
-  // Fetch all goals + their checkins for this quarter
+  // Fetch all goals for this sheet
   const { data: goals } = await supabase
     .from("goals")
-    .select("id, is_shared, shared_goal_links(shared_goal_id)")
+    .select("id, is_shared")
     .eq("goal_sheet_id", sheetId);
 
   if (!goals || goals.length === 0) {
@@ -129,21 +137,6 @@ export async function submitQuarterlyCheckinAction(
   if (missingGoals.length > 0) {
     return { data: null, error: `${missingGoals.length} goal(s) missing check-in data for ${quarter}` };
   }
-
-  // Sync shared goal progress via RPC (if any shared goals exist)
-  const sharedGoals = goals.filter((g) => g.is_shared);
-  if (sharedGoals.length > 0) {
-    await syncSharedGoalProgress(supabase, sharedGoals, quarter);
-  }
-
-  // Log audit
-  const adminClient = createAdminClient();
-  await adminClient.from("audit_log").insert({
-    goal_sheet_id: sheetId,
-    actor_id: user.id,
-    action: "SUBMIT_QUARTERLY_CHECKIN",
-    reason: `${quarter} check-ins submitted for all ${goals.length} goals`,
-  });
 
   // Notification to manager
   const { notifyUser } = await import("@/lib/notifications");
@@ -216,35 +209,5 @@ export async function addManagerCommentAction(
 
 // ── Helpers ────────────────────────────────────────────────
 
-/**
- * Sync progress of shared goals to the parent shared_goal_links table.
- * This allows the manager/org to see aggregated progress across employees.
- */
-async function syncSharedGoalProgress(
-  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
-  sharedGoals: Array<{ id: string; shared_goal_links: unknown }>,
-  quarter: string,
-): Promise<void> {
-  for (const goal of sharedGoals) {
-    const links = goal.shared_goal_links as Array<{ shared_goal_id: string }> | null;
-    if (!links || links.length === 0) continue;
 
-    // Fetch the latest progress score for this goal in this quarter
-    const { data: checkin } = await supabase
-      .from("checkins")
-      .select("progress_score")
-      .eq("goal_id", goal.id)
-      .eq("quarter", quarter as any)
-      .single();
-
-    if (checkin?.progress_score != null) {
-      // Update the shared_goal_link with the latest progress
-      await (supabase
-        .from("shared_goal_links") as any)
-        .update({ last_progress_score: checkin.progress_score })
-        .eq("shared_goal_id", links[0].shared_goal_id)
-        .eq("goal_id", goal.id);
-    }
-  }
-}
 

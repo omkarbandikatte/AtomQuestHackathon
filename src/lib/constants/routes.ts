@@ -52,6 +52,7 @@ export const SIDEBAR_NAV = {
     { label: "Dashboard", href: ROUTES.ADMIN_DASHBOARD, icon: "LayoutDashboard" },
     { label: "Users", href: ROUTES.USERS, icon: "Users" },
     { label: "Cycles", href: ROUTES.CYCLES, icon: "CalendarRange" },
+    { label: "Unlock Sheets", href: ROUTES.UNLOCK, icon: "LockOpen" },
     { label: "Reports", href: ROUTES.REPORTS, icon: "BarChart3" },
     { label: "Audit Logs", href: ROUTES.AUDIT_LOG, icon: "FileText" },
     { label: "Escalations", href: ROUTES.ESCALATIONS, icon: "AlertTriangle" },

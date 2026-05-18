@@ -70,7 +70,7 @@ function BadgeCard({ badge }: BadgeCardProps) {
       </span>
       {badge.earned && badge.earnedAt && (
         <span className="text-[9px] text-neutral-400 mt-0.5">
-          {new Date(badge.earnedAt).toLocaleDateString()}
+          {new Date(badge.earnedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" })}
         </span>
       )}
       {!badge.earned && (

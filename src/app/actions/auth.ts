@@ -68,7 +68,7 @@ export async function loginAction(
             case "manager":
               return ROUTES.TEAM;
             default:
-              return ROUTES.GOAL_SHEET;
+              return ROUTES.EMPLOYEE_DASHBOARD;
           }
         })();
 

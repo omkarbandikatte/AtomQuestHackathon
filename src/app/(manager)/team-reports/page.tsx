@@ -21,7 +21,7 @@ export default async function TeamReportsPage() {
     .from("users")
     .select(
       `id, full_name, department,
-       goal_sheets(id, status, is_locked, submitted_at, approved_at, cycle_id)`
+       goal_sheets!goal_sheets_employee_fk(id, status, is_locked, submitted_at, approved_at, cycle_id)`
     )
     .eq("manager_id", user.id)
     .eq("is_active", true)

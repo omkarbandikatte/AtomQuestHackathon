@@ -15,6 +15,6 @@ export default async function HomePage() {
     case "manager":
       redirect(ROUTES.TEAM);
     default:
-      redirect(ROUTES.GOAL_SHEET);
+      redirect(ROUTES.EMPLOYEE_DASHBOARD);
   }
 }

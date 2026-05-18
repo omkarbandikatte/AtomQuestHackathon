@@ -27,7 +27,7 @@ export default async function ManagerCheckinsPage() {
     .select(
       `
       id, full_name, email,
-      goal_sheets(
+      goal_sheets!goal_sheets_employee_fk(
         id, status, is_locked, cycle_id,
         goals(id, title, thrust_area, uom_type, target_value, weightage,
           checkins(id, quarter, actual_value, status, progress_score, manager_comment)

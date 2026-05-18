@@ -11,18 +11,25 @@ type CookieOptions = { name: string; value: string; options?: Record<string, unk
  * If a user's role doesn't match, they get redirected to their default route.
  */
 const ROLE_ROUTE_MAP: { prefix: string; allowedRoles: Role[] }[] = [
+  { prefix: "/home", allowedRoles: ["employee"] },
   { prefix: "/goal-sheet", allowedRoles: ["employee"] },
   { prefix: "/checkins", allowedRoles: ["employee"] },
   { prefix: "/progress", allowedRoles: ["employee"] },
+  { prefix: "/profile", allowedRoles: ["employee"] },
+  { prefix: "/notifications", allowedRoles: ["employee"] },
   { prefix: "/team", allowedRoles: ["manager"] },
   { prefix: "/approvals", allowedRoles: ["manager"] },
   { prefix: "/manager-checkins", allowedRoles: ["manager"] },
+  { prefix: "/shared-goals", allowedRoles: ["manager"] },
+  { prefix: "/team-reports", allowedRoles: ["manager"] },
   { prefix: "/dashboard", allowedRoles: ["admin"] },
   { prefix: "/cycles", allowedRoles: ["admin"] },
   { prefix: "/users", allowedRoles: ["admin"] },
   { prefix: "/audit-log", allowedRoles: ["admin"] },
   { prefix: "/reports", allowedRoles: ["admin"] },
   { prefix: "/unlock", allowedRoles: ["admin"] },
+  { prefix: "/escalations", allowedRoles: ["admin"] },
+  { prefix: "/settings", allowedRoles: ["admin"] },
 ];
 
 /** Returns the default landing page for a given role */
@@ -33,7 +40,7 @@ function getDefaultRoute(role: Role): string {
     case "manager":
       return "/team";
     default:
-      return "/goal-sheet";
+      return "/home";
   }
 }
 

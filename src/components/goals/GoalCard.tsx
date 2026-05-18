@@ -34,14 +34,8 @@ export function GoalCard({
 }: GoalCardProps) {
   return (
     <Card className={cn("relative", className)}>
-      {isLocked && (
-        <div className="absolute top-3 right-3">
-          <LockBadge />
-        </div>
-      )}
-
       <CardHeader className="pb-2">
-        <div className="flex flex-wrap items-center gap-2 pr-24">
+        <div className="flex flex-wrap items-center gap-2">
           <Badge variant="teal" className="text-xs">
             {goal.thrust_area}
           </Badge>
@@ -49,9 +43,12 @@ export function GoalCard({
           <Badge variant="outline" className="text-xs font-mono">
             {UOM_LABELS[goal.uom_type as keyof typeof UOM_LABELS] ?? goal.uom_type}
           </Badge>
-          <Badge variant="secondary" className="text-xs ml-auto">
-            {goal.weightage}%
-          </Badge>
+          <div className="ml-auto flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              {goal.weightage}%
+            </Badge>
+            {isLocked && <LockBadge />}
+          </div>
         </div>
 
         <h3

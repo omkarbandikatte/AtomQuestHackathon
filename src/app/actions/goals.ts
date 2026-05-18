@@ -275,10 +275,10 @@ export async function managerEditGoalAction(
   const adminClient = createAdminClient();
   await adminClient.from("audit_log").insert({
     goal_sheet_id: goal.goal_sheet_id,
+    goal_id,
     actor_id: user.id,
-    action: "MANAGER_EDIT_GOAL",
+    action: "UPDATE",
     reason: `Manager edited goal: ${changes.join("; ")}`,
-    metadata: { goal_id, changes: updates },
   } as any);
 
   revalidatePath(`/approvals/${goal.goal_sheet_id}`);
@@ -341,12 +341,12 @@ export async function approveWithCommentAction(
 
   if (error) return { data: null, error: error.message };
 
-  // Audit trail with approval comment
+  // Audit trail with approval comment (RPC already inserts APPROVE; add the comment separately)
   const adminClient = createAdminClient();
   await adminClient.from("audit_log").insert({
     goal_sheet_id: sheetId,
     actor_id: user.id,
-    action: "APPROVE_GOAL_SHEET",
+    action: "APPROVE",
     reason: comment,
   });
 

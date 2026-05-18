@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AtomQuest - Project Documentation</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            padding: 40px 60px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 32px;
+            color: #1a237e;
+            border-bottom: 3px solid #1a237e;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+        }
+        h2 {
+            font-size: 22px;
+            color: #1b5e20;
+            margin-top: 36px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 6px;
+        }
+        h3 {
+            font-size: 17px;
+            color: #4a148c;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+        p { margin-bottom: 10px; }
+        .subtitle {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0 20px 0;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px 14px;
+            text-align: left;
+        }
+        th {
+            background: #1a237e;
+            color: #fff;
+            font-weight: 600;
+        }
+        tr:nth-child(even) { background: #f5f5f5; }
+        .credential-card {
+            border: 2px solid #1a237e;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 14px 0;
+            background: #f8f9ff;
+            page-break-inside: avoid;
+        }
+        .credential-card h3 {
+            margin-top: 0;
+            color: #1a237e;
+            font-size: 18px;
+        }
+        .credential-card .role-badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .badge-employee { background: #2196f3; }
+        .badge-manager { background: #9c27b0; }
+        .badge-admin { background: #d32f2f; }
+        .credential-field {
+            margin: 6px 0;
+            font-size: 15px;
+        }
+        .credential-field strong {
+            display: inline-block;
+            width: 90px;
+            color: #333;
+        }
+        .credential-field code {
+            background: #e8eaf6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+        }
+        .architecture-diagram {
+            margin: 20px 0;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+        .feature-list {
+            padding-left: 20px;
+            margin: 8px 0 16px 0;
+        }
+        .feature-list li {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+        }
+        .code-block {
+            background: #263238;
+            color: #eeffff;
+            padding: 14px 18px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            margin: 10px 0 16px 0;
+            overflow-x: auto;
+        }
+        .page-break { page-break-before: always; }
+        .tech-stack-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 20px;
+            margin: 12px 0;
+        }
+        .tech-item {
+            padding: 6px 0;
+            font-size: 14px;
+            border-bottom: 1px dotted #ddd;
+        }
+        .tech-item strong { color: #1a237e; }
+        .footer {
+            margin-top: 40px;
+            padding-top: 16px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+        .cover-page {
+            text-align: center;
+            padding-top: 120px;
+            padding-bottom: 80px;
+        }
+        .cover-page h1 {
+            font-size: 42px;
+            border: none;
+            margin-bottom: 16px;
+        }
+        .cover-page .tagline {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 40px;
+        }
+        .cover-page .meta {
+            font-size: 14px;
+            color: #777;
+            margin-top: 60px;
+        }
+        @media print {
+            body { padding: 20px 40px; }
+            .page-break { page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cover Page -->
+    <div class="cover-page">
+        <h1>AtomQuest</h1>
+        <p class="tagline">Performance Goal Tracking Portal</p>
+        <p style="font-size:15px; color:#333; max-width:600px; margin:0 auto;">
+            A comprehensive performance management system for organizations following the 
+            Indian Financial Year (April–March) cycle. Enabling employees to set goals, 
+            log quarterly check-ins, and track progress with AI-powered assistance.
+        </p>
+        <div class="meta">
+            <p><strong>Version:</strong> 1.0.0</p>
+            <p><strong>Date:</strong> May 2026</p>
+            <p><strong>Stack:</strong> Next.js 14 | TypeScript | Supabase | Groq AI</p>
+        </div>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="page-break"></div>
+    <h2 style="margin-top:0;">Table of Contents</h2>
+    <ol style="font-size:15px; line-height:2.2; padding-left:20px;">
+        <li>System Architecture</li>
+        <li>Tech Stack</li>
+        <li>Features Overview</li>
+        <li>Role-Based Access Control</li>
+        <li>Database Schema</li>
+        <li>Demo Credentials</li>
+        <li>Project Structure</li>
+        <li>Setup &amp; Installation</li>
+        <li>Key Design Decisions</li>
+    </ol>
+
+    <!-- 1. System Architecture -->
+    <div class="page-break"></div>
+    <h2 style="margin-top:0;">1. System Architecture</h2>
+    <p>The application follows a modern full-stack architecture with clear separation between client, server, and data layers.</p>
+    
+    <div class="architecture-diagram">
+        <pre class="mermaid">
+graph TB
+    subgraph Client["CLIENT LAYER - Browser"]
+        direction TB
+        UI["React 18 + Next.js 14 App Router"]
+        RHF["React Hook Form + Zod Validation"]
+        Zustand["Zustand Stores - Auth, Goals, UI, Approvals"]
+        RQ["TanStack React Query - Server State Cache"]
+        RT["Supabase Realtime - Shared Goal Sync"]
+    end
+
+    subgraph Roles["ROLE-BASED ROUTES"]
+        direction LR
+        EMP["Employee: Goals, Check-ins, Progress"]
+        MGR["Manager: Approvals, Team, Shared Goals"]
+        ADM["Admin: Cycles, Users, Audit, Reports"]
+    end
+
+    subgraph Server["SERVER LAYER - Next.js"]
+        direction TB
+        MW["Middleware - Auth + Route Protection"]
+        SA["Server Actions - Mutations + Validation"]
+        SVC["Services: Goal, Checkin, Manager, Cycle, Audit, Export, Gamification"]
+        AI["Groq AI Service - Llama 3.3 70B"]
+    end
+
+    subgraph Supabase["SUPABASE PLATFORM"]
+        direction TB
+        AUTH["Supabase Auth - JWT Cookie Sessions"]
+        PG["PostgreSQL Database"]
+        RLS["Row-Level Security - Role Policies"]
+        REALTIME["Realtime Broadcast - WebSocket"]
+        subgraph Tables["CORE TABLES"]
+            direction LR
+            T1["users"]
+            T2["cycles"]
+            T3["goal_sheets"]
+            T4["goals"]
+            T5["checkins"]
+            T6["audit_log"]
+            T7["shared_goal_links"]
+            T8["notifications"]
+        end
+    end
+
+    subgraph External["EXTERNAL SERVICES"]
+        GROQ["Groq Cloud API - LLM Inference"]
+    end
+
+    UI --> Roles
+    UI --> RHF
+    UI --> Zustand
+    UI --> RQ
+    UI --> RT
+
+    Roles --> MW
+    MW --> AUTH
+    MW --> SA
+    SA --> SVC
+    SVC --> PG
+    SA --> AI
+    AI --> GROQ
+
+    RQ --> SVC
+    AUTH --> PG
+    PG --> RLS
+    RLS --> Tables
+    REALTIME --> RT
+
+    classDef clientStyle fill:#1a237e,stroke:#000,stroke-width:2px,color:#fff
+    classDef serverStyle fill:#1b5e20,stroke:#000,stroke-width:2px,color:#fff
+    classDef dbStyle fill:#bf360c,stroke:#000,stroke-width:2px,color:#fff
+    classDef extStyle fill:#880e4f,stroke:#000,stroke-width:2px,color:#fff
+    classDef roleStyle fill:#4a148c,stroke:#000,stroke-width:2px,color:#fff
+    classDef tableStyle fill:#e65100,stroke:#000,stroke-width:2px,color:#fff
+
+    class UI,RHF,Zustand,RQ,RT clientStyle
+    class MW,SA,SVC,AI serverStyle
+    class AUTH,PG,RLS,REALTIME dbStyle
+    class GROQ extStyle
+    class EMP,MGR,ADM roleStyle
+    class T1,T2,T3,T4,T5,T6,T7,T8 tableStyle
+        </pre>
+    </div>
+
+    <!-- 2. Tech Stack -->
+    <div class="page-break"></div>
+    <h2 style="margin-top:0;">2. Tech Stack</h2>
+    <table>
+        <thead>
+            <tr><th>Layer</th><th>Technology</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Framework</td><td>Next.js 14.2 (App Router, Server-Side Rendering)</td></tr>
+            <tr><td>Language</td><td>TypeScript 5.7</td></tr>
+            <tr><td>UI Library</td><td>React 18.3, Tailwind CSS 3.4, Radix UI, Lucide Icons</td></tr>
+            <tr><td>Forms &amp; Validation</td><td>React Hook Form 7.x + Zod 3.x</td></tr>
+            <tr><td>Client State</td><td>Zustand 5.x (auth, UI, goal drafts, approvals)</td></tr>
+            <tr><td>Server State</td><td>TanStack React Query 5.x (caching, invalidation)</td></tr>
+            <tr><td>Database</td><td>PostgreSQL via Supabase (triggers, constraints, pg_trgm)</td></tr>
+            <tr><td>Authentication</td><td>Supabase Auth (JWT cookies, SSR-safe sessions)</td></tr>
+            <tr><td>Real-time</td><td>Supabase Realtime (WebSocket broadcast channels)</td></tr>
+            <tr><td>AI / LLM</td><td>Groq Cloud API (Llama 3.3 70B Versatile)</td></tr>
+            <tr><td>Export</td><td>XLSX and CSV report generation</td></tr>
+            <tr><td>Toast Notifications</td><td>Sonner</td></tr>
+        </tbody>
+    </table>
+
+    <!-- 3. Features Overview -->
+    <h2>3. Features Overview</h2>
+    
+    <h3>Employee Portal</h3>
+    <ul class="feature-list">
+        <li>Create and manage up to 8 weighted goals per performance cycle</li>
+        <li>Log quarterly check-ins with actual progress values (Q1–Q4)</li>
+        <li>AI-powered goal writing assistant (generates SMART goals from intent)</li>
+        <li>Auto-computed progress scores (0–200%) based on UoM type</li>
+        <li>Visual progress dashboard with completion indicators</li>
+        <li>In-app notifications for approvals, returns, and deadlines</li>
+        <li>Goal sheet submission workflow (draft → submitted → approved/returned)</li>
+    </ul>
+
+    <h3>Manager Portal</h3>
+    <ul class="feature-list">
+        <li>Review and approve/return employee goal sheets with feedback</li>
+        <li>Monitor team progress across all quarters</li>
+        <li>Create shared/cascaded goals that sync across team members</li>
+        <li>View team check-in history and completion rates</li>
+        <li>Team performance reports and analytics</li>
+    </ul>
+
+    <h3>Admin Portal</h3>
+    <ul class="feature-list">
+        <li>Manage performance cycles (Indian FY: April–March)</li>
+        <li>User management with role assignment (employee/manager/admin)</li>
+        <li>Append-only audit log for full compliance tracking</li>
+        <li>Unlock locked goal sheets with mandatory reason (audit trail)</li>
+        <li>Organization-wide reports with Excel/CSV export</li>
+        <li>Escalation management for overdue submissions</li>
+        <li>Department and gamification leaderboards</li>
+    </ul>
+
+    <!-- 4. Role-Based Access Control -->
+    <div class="page-break"></div>
+    <h2 style="margin-top:0;">4. Role-Based Access Control</h2>
+    <p>Authorization is enforced at <strong>three independent layers</strong> for defense-in-depth:</p>
+
+    <table>
+        <thead>
+            <tr><th>Layer</th><th>Mechanism</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>1. Middleware</td><td>Next.js Route Guards</td><td>Redirects unauthorized users before page loads</td></tr>
+            <tr><td>2. Database</td><td>PostgreSQL RLS Policies</td><td>Row-level filtering ensures users only see permitted data</td></tr>
+            <tr><td>3. Server Actions</td><td>Role Validation</td><td>Every mutation verifies role before executing</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Route Access Matrix</h3>
+    <table>
+        <thead>
+            <tr><th>Role</th><th>Accessible Routes</th><th>Key Permissions</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Employee</strong></td>
+                <td>/home, /goal-sheet, /checkins, /progress, /profile, /notifications</td>
+                <td>Own goals only, submit goal sheets, log check-ins</td>
+            </tr>
+            <tr>
+                <td><strong>Manager</strong></td>
+                <td>/team, /approvals, /manager-checkins, /shared-goals, /team-reports</td>
+                <td>View direct reports, approve/return sheets, create shared goals</td>
+            </tr>
+            <tr>
+                <td><strong>Admin</strong></td>
+                <td>/dashboard, /cycles, /users, /audit-log, /reports, /unlock, /escalations, /settings</td>
+                <td>Full system control, cycle management, audit access</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 5. Database Schema -->
+    <h2>5. Database Schema</h2>
+    <table>
+        <thead>
+            <tr><th>Table</th><th>Purpose</th><th>Key Constraints</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>users</code></td><td>Portal users (1:1 with Supabase Auth)</td><td>role enum, manager_id FK, department</td></tr>
+            <tr><td><code>cycles</code></td><td>Performance cycles with quarterly gates</td><td>Only one active cycle at a time</td></tr>
+            <tr><td><code>goal_sheets</code></td><td>Employee goal container per cycle</td><td>Status workflow: draft→submitted→approved/returned</td></tr>
+            <tr><td><code>goals</code></td><td>Individual goals (max 8 per sheet)</td><td>Min 10% weightage, total = 100%, trigger-enforced</td></tr>
+            <tr><td><code>checkins</code></td><td>Quarterly progress entries</td><td>Auto-computed progress_score (0–200%)</td></tr>
+            <tr><td><code>shared_goal_links</code></td><td>Junction for cascaded KPI sync</td><td>source_goal_id, target_goal_id, is_primary_owner</td></tr>
+            <tr><td><code>audit_log</code></td><td>Immutable compliance ledger</td><td>No UPDATE/DELETE policies (append-only)</td></tr>
+            <tr><td><code>notifications</code></td><td>In-app event notifications</td><td>User-scoped, action links</td></tr>
+        </tbody>
+    </table>
+
+    <h3>UoM (Unit of Measure) Types</h3>
+    <table>
+        <thead>
+            <tr><th>Type</th><th>Logic</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>numeric_min</code></td><td>Higher actual = better (actual/target × 100)</td><td>Revenue target: ₹10L</td></tr>
+            <tr><td><code>numeric_max</code></td><td>Lower actual = better (target/actual × 100)</td><td>Bug count: target 5</td></tr>
+            <tr><td><code>timeline</code></td><td>Date-based milestone completion</td><td>Launch by June 30</td></tr>
+            <tr><td><code>zero</code></td><td>Binary (done or not done)</td><td>Certification obtained</td></tr>
+        </tbody>
+    </table>
+
+    <!-- 6. Demo Credentials -->
+    <div class="page-break"></div>
+    <h2 style="margin-top:0;">6. Demo Credentials</h2>
+    <p>Use the following credentials to access the application with different roles:</p>
+
+    <div class="credential-card">
+        <span class="role-badge badge-employee">EMPLOYEE</span>
+        <h3>Employee Account</h3>
+        <div class="credential-field"><strong>Email:</strong> <code>omkar1234@gmail.com</code></div>
+        <div class="credential-field"><strong>Password:</strong> <code>123456789</code></div>
+        <p style="margin-top:10px; font-size:13px; color:#555;">
+            <em>Access: Goal sheet creation, quarterly check-ins, progress tracking, AI goal assistant, notifications</em>
+        </p>
+    </div>
+
+    <div class="credential-card">
+        <span class="role-badge badge-manager">MANAGER</span>
+        <h3>Manager Account</h3>
+        <div class="credential-field"><strong>Email:</strong> <code>ankita@gmail.com</code></div>
+        <div class="credential-field"><strong>Password:</strong> <code>123456789</code></div>
+        <p style="margin-top:10px; font-size:13px; color:#555;">
+            <em>Access: Team overview, goal sheet approvals, shared goals, team check-ins, team reports</em>
+        </p>
+    </div>
+
+    <div class="credential-card">
+        <span class="role-badge badge-admin">ADMIN</span>
+        <h3>Admin Account</h3>
+        <div class="credential-field"><strong>Email:</strong> <code>admin@atomquest.dev</code></div>
+        <div class="credential-field"><strong>Password:</strong> <code>Admin@12345</code></div>
+        <p style="margin-top:10px; font-size:13px; color:#555;">
+            <em>Access: Full system control — cycles, users, audit log, unlock, reports, escalations, settings</em>
+        </p>
+    </div>
+
+    <!-- 7. Project Structure -->
+    <div class="page-break"></div>
+    <h2 style="margin-top:0;">7. Project Structure</h2>
+    <div class="code-block">
+src/
+├── app/                        # Next.js App Router
+│   ├── (admin)/                # Admin routes (dashboard, cycles, users, audit-log, reports, unlock, escalations, settings)
+│   ├── (auth)/                 # Authentication (login, signup)
+│   ├── (employee)/             # Employee routes (home, goal-sheet, checkins, progress, profile, notifications)
+│   ├── (manager)/              # Manager routes (team, approvals, manager-checkins, shared-goals, team-reports)
+│   └── actions/                # Server Actions (admin, ai, auth, checkins, goals, shared-goals)
+├── components/                 # React components organized by domain
+│   ├── admin/                  # Admin-specific components
+│   ├── ai/                     # AI goal assistant UI
+│   ├── checkins/               # Check-in forms and views
+│   ├── goals/                  # Goal cards, forms, sheets
+│   ├── manager/                # Manager-specific components
+│   ├── shared/                 # Shared/common components
+│   └── ui/                     # Radix-based design primitives
+├── hooks/                      # Custom React hooks (auth, goals, checkins, realtime, team)
+├── lib/                        # Core utilities
+│   ├── ai/                     # Groq AI service integration
+│   ├── auth/                   # Session management helpers
+│   ├── supabase/               # Client/server Supabase instances
+│   └── utils/                  # General utilities
+├── providers/                  # React context providers (Auth, Query, Theme)
+├── services/                   # Data access layer (8 service classes)
+├── store/                      # Zustand state stores
+├── types/                      # TypeScript type definitions
+└── validations/                # Zod validation schemas
+supabase/
+└── migrations/                 # Ordered SQL migrations (001–005)
+    </div>
+
+    <!-- 8. Setup & Installation -->
+    <h2>8. Setup &amp; Installation</h2>
+    
+    <h3>Prerequisites</h3>
+    <ul class="feature-list">
+        <li>Node.js 18+ installed</li>
+        <li>A Supabase project (with Auth enabled)</li>
+        <li>Groq API key (for AI goal assistant)</li>
+    </ul>
+
+    <h3>Installation Steps</h3>
+    <div class="code-block">
+# 1. Clone the repository
+git clone https://github.com/your-org/atomquest.git
+cd atomquest
+
+# 2. Install dependencies
+npm install
+
+# 3. Configure environment variables
+cp .env.example .env.local
+# Edit .env.local with your Supabase and Groq credentials
+
+# 4. Run database migrations
+npm run db:migrate:seed
+
+# 5. Start development server
+npm run dev
+    </div>
+
+    <h3>Environment Variables</h3>
+    <table>
+        <thead>
+            <tr><th>Variable</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>NEXT_PUBLIC_SUPABASE_URL</code></td><td>Supabase project URL</td></tr>
+            <tr><td><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td><td>Supabase anonymous/public key</td></tr>
+            <tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>Supabase service role key (server-only)</td></tr>
+            <tr><td><code>GROQ_API_KEY</code></td><td>Groq Cloud API key for LLM</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Available Scripts</h3>
+    <table>
+        <thead>
+            <tr><th>Command</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>npm run dev</code></td><td>Start development server (localhost:3000)</td></tr>
+            <tr><td><code>npm run build</code></td><td>Production build</td></tr>
+            <tr><td><code>npm run start</code></td><td>Start production server</td></tr>
+            <tr><td><code>npm run lint</code></td><td>Run ESLint</td></tr>
+            <tr><td><code>npm run type-check</code></td><td>TypeScript type validation</td></tr>
+            <tr><td><code>npm run db:migrate</code></td><td>Run database migrations</td></tr>
+            <tr><td><code>npm run db:migrate:seed</code></td><td>Run migrations + seed data</td></tr>
+        </tbody>
+    </table>
+
+    <!-- 9. Key Design Decisions -->
+    <div class="page-break"></div>
+    <h2 style="margin-top:0;">9. Key Design Decisions</h2>
+    <table>
+        <thead>
+            <tr><th>Decision</th><th>Rationale</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Max 8 goals per sheet</td><td>Keeps employees focused; enforced by DB trigger</td></tr>
+            <tr><td>Weightage: min 10%, total 100%</td><td>Ensures meaningful distribution; validated at all layers</td></tr>
+            <tr><td>Progress score 0–200%</td><td>Allows exceeding targets; auto-computed by Postgres trigger</td></tr>
+            <tr><td>Append-only audit log</td><td>Compliance requirement; no UPDATE/DELETE RLS policies</td></tr>
+            <tr><td>Real-time shared goals</td><td>Primary owner's check-in broadcasts to linked goals via WebSocket</td></tr>
+            <tr><td>AI server-side only</td><td>Groq API key never exposed to client; all calls through Server Actions</td></tr>
+            <tr><td>Three-layer authorization</td><td>Defense-in-depth: middleware + RLS + server action validation</td></tr>
+            <tr><td>Indian FY cycle (Apr–Mar)</td><td>Matches target organization's fiscal year structure</td></tr>
+            <tr><td>React Query + Zustand</td><td>Separates server state (cacheable) from client state (ephemeral)</td></tr>
+            <tr><td>Supabase SSR auth</td><td>Cookie-based JWT avoids hydration issues; middleware refreshes tokens</td></tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>AtomQuest v1.0.0 — Performance Goal Tracking Portal — May 2026</p>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'base',
+            themeVariables: {
+                fontSize: '12px'
+            }
+        });
+    </script>
+</body>
+</html>

@@ -235,8 +235,16 @@ BEGIN
   BEGIN
     v_actor_id := current_setting('app.current_user_id', true)::uuid;
   EXCEPTION WHEN OTHERS THEN
-    v_actor_id := auth.uid();
+    v_actor_id := NULL;
   END;
+  IF v_actor_id IS NULL THEN
+    v_actor_id := auth.uid();
+  END IF;
+
+  -- Skip audit if no actor can be determined (e.g. system trigger cascade)
+  IF v_actor_id IS NULL THEN
+    RETURN NEW;
+  END IF;
 
   -- Log each changed field
   INSERT INTO public.audit_log (goal_sheet_id, goal_id, actor_id, action, field_changed, old_value, new_value)
@@ -291,8 +299,16 @@ BEGIN
   BEGIN
     v_actor_id := current_setting('app.current_user_id', true)::uuid;
   EXCEPTION WHEN OTHERS THEN
-    v_actor_id := auth.uid();
+    v_actor_id := NULL;
   END;
+  IF v_actor_id IS NULL THEN
+    v_actor_id := auth.uid();
+  END IF;
+
+  -- Skip audit if no actor can be determined
+  IF v_actor_id IS NULL THEN
+    RETURN NEW;
+  END IF;
 
   INSERT INTO public.audit_log (goal_sheet_id, goal_id, actor_id, action, field_changed, old_value, new_value)
   SELECT
