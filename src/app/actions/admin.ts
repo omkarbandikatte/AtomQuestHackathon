@@ -63,6 +63,9 @@ export async function updateCycleAction(
     return { data: null, error: parsed.error.errors[0]?.message ?? ERROR_CODES.VALIDATION_FAILED };
   }
 
+  const auth = await verifyAdmin();
+  if ("error" in auth) return { data: null, error: auth.error };
+
   const adminClient = createAdminClient();
   const { error } = await adminClient
     .from("cycles")

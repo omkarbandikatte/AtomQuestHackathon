@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
 import type { Cycle } from "@/types/app.types";
 import { Zap } from "lucide-react";
+import { CycleEditDialog } from "@/components/admin/CycleEditDialog";
 
 interface Props {
   cycles: Cycle[];
@@ -50,7 +51,7 @@ export function CycleListTable({ cycles, activeCycleId }: Props) {
             <TableHead>Q1 Opens</TableHead>
             <TableHead>Closes</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="w-[80px]" />
+            <TableHead className="w-[140px]" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -79,18 +80,21 @@ export function CycleListTable({ cycles, activeCycleId }: Props) {
                 </Badge>
               </TableCell>
               <TableCell>
-                {!cycle.is_active && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 text-xs gap-1"
-                    disabled={isPending}
-                    onClick={() => handleActivate(cycle.id)}
-                  >
-                    <Zap className="h-3 w-3" />
-                    Activate
-                  </Button>
-                )}
+                <div className="flex items-center gap-1">
+                  <CycleEditDialog cycle={cycle} />
+                  {!cycle.is_active && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs gap-1"
+                      disabled={isPending}
+                      onClick={() => handleActivate(cycle.id)}
+                    >
+                      <Zap className="h-3 w-3" />
+                      Activate
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
